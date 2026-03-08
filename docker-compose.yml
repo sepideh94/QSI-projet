@@ -1,0 +1,10 @@
+services:
+  dashboard:
+    build: .
+    container_name: qsi-dashboard
+    ports:
+      - "3003:3003"
+    environment:
+      PROJECTS_API_BASE_URL: http://host.docker.internal:3001
+      CONTRIBUTIONS_API_BASE_URL: http://host.docker.internal:3002
+      PORT: 3003
