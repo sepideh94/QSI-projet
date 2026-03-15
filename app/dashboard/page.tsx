@@ -1,61 +1,118 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import MetricCard from "@/components/dashboard/MetricCard";
 import ContributionsPerCampaignChart from "@/components/charts/ContributionsPerCampaignChart";
+import AmountCollectedPerCampaignChart from "@/components/charts/AmountCollectedPerCampaignChart";
 import { getContributionsPerCampaign } from "@/lib/metrics/contributions/contributions-per-campaign";
+import { getAmountCollectedPerCampaign } from "@/lib/charts/amount-collected-per-campaign";
+
+type MetricsState = {
+  activeCampaigns: number | null;
+  totalContributions: number | null;
+  totalAmount: number | null;
+  successRate: number | null;
+  averageContribution: number | null;
+};
+
+type MetricResponse = {
+  value: number;
+};
+
+type ChartOption =
+  | "contributions-per-campaign"
+  | "amount-collected-per-campaign";
+
+const metricEndpoints = [
+  {
+    key: "activeCampaigns" as const,
+    url: "/api/metrics/campaigns-active",
+    title: "Campagnes actives",
+    format: (value: number) => value
+  },
+  {
+    key: "totalContributions" as const,
+    url: "/api/metrics/contributions-total",
+    title: "Contributions totales",
+    format: (value: number) => value
+  },
+  {
+    key: "totalAmount" as const,
+    url: "/api/metrics/amount-collected",
+    title: "Montant collecté",
+    format: (value: number) => `${value} €`
+  },
+  {
+    key: "successRate" as const,
+    url: "/api/metrics/success-rate",
+    title: "Taux de succès",
+    format: (value: number) => `${value} %`
+  },
+  {
+    key: "averageContribution" as const,
+    url: "/api/metrics/average-contribution",
+    title: "Contribution moyenne",
+    format: (value: number) => value
+  }
+];
 
 export default function DashboardPage() {
+  const [metrics, setMetrics] = useState<MetricsState>({
+    activeCampaigns: null,
+    totalContributions: null,
+    totalAmount: null,
+    successRate: null,
+    averageContribution: null
+  });
 
-  const [activeCampaigns, setActiveCampaigns] = useState<number | null>(null);
-  const [totalContributions, setTotalContributions] = useState<number | null>(null);
-  const [totalAmount, setTotalAmount] = useState<number | null>(null);
-  const [successRate, setSuccessRate] = useState<number | null>(null);
-  const [averageContribution, setAverageContribution] = useState<number | null>(null);
+  const [selectedChart, setSelectedChart] =
+    useState<ChartOption>("contributions-per-campaign");
 
-  const chartData = getContributionsPerCampaign();
+  const contributionsPerCampaignData = useMemo(
+    () => getContributionsPerCampaign(),
+    []
+  );
+
+  const amountCollectedPerCampaignData = useMemo(
+    () => getAmountCollectedPerCampaign(),
+    []
+  );
 
   useEffect(() => {
-
     async function loadMetrics() {
-
       try {
+        const results = await Promise.all(
+          metricEndpoints.map(async ({ key, url }) => {
+            const response = await fetch(url);
 
-        const campaignsResponse = await fetch("/api/metrics/campaigns-active");
-        const campaignsData = await campaignsResponse.json();
-        setActiveCampaigns(campaignsData.value);
+            if (!response.ok) {
+              throw new Error(`Erreur HTTP ${response.status} sur ${url}`);
+            }
 
-        const contributionsResponse = await fetch("/api/metrics/contributions-total");
-        const contributionsData = await contributionsResponse.json();
-        setTotalContributions(contributionsData.value);
+            const data: MetricResponse = await response.json();
 
-        const amountResponse = await fetch("/api/metrics/amount-collected");
-        const amountData = await amountResponse.json();
-        setTotalAmount(amountData.value);
+            return { key, value: data.value };
+          })
+        );
 
-        const successResponse = await fetch("/api/metrics/success-rate");
-        const successData = await successResponse.json();
-        setSuccessRate(successData.value);
+        setMetrics((currentMetrics) => {
+          const nextMetrics = { ...currentMetrics };
 
-        const averageResponse = await fetch("/api/metrics/average-contribution");
-        const averageData = await averageResponse.json();
-        setAverageContribution(
-averageData.value);
+          for (const result of results) {
+            nextMetrics[result.key] = result.value;
+          }
 
+          return nextMetrics;
+        });
       } catch (error) {
-
         console.error("Erreur chargement métriques", error);
-
       }
-
     }
 
     loadMetrics();
-
   }, []);
 
   return (
-
     <main
       style={{
         padding: "24px",
@@ -63,7 +120,6 @@ averageData.value);
         paddingBottom: "120px"
       }}
     >
-
       <h1>Dashboard WeFund</h1>
 
       <h2>Indicateurs</h2>
@@ -76,32 +132,58 @@ averageData.value);
           flexWrap: "wrap"
         }}
       >
-
-        <MetricCard title="Campagnes actives" value={activeCampaigns} />
-
-        <MetricCard title="Contributions totales" value={totalContributions} />
-
-        <MetricCard
-          title="Montant collecté"
-          value={totalAmount !== null ? `${totalAmount} €` : null}
-        />
-
-        <MetricCard
-          title="Taux de succès"
-          value={successRate !== null ? `${successRate} %` : null}
-        />
-
-        <MetricCard
-          title="Contribution moyenne"
-          value={averageContribution !== null ? `${averageContribution}` : null}
-        />
-
+        {metricEndpoints.map(({ key, title, format }) => (
+          <MetricCard
+            key={key}
+            title={title}
+            value={metrics[key] !== null ? format(metrics[key] as number) : null}
+          />
+        ))}
       </div>
 
-      <ContributionsPerCampaignChart data={chartData} />
+      <section style={{ marginTop: "40px", maxWidth: "700px" }}>
+        <label
+          htmlFor="chart-selector"
+          style={{
+            display: "block",
+            marginBottom: "8px",
+            fontWeight: "bold"
+          }}
+        >
+          Sélectionner un indicateur
+        </label>
 
+        <select
+          id="chart-selector"
+          value={selectedChart}
+          onChange={(event) =>
+            setSelectedChart(event.target.value as ChartOption)
+          }
+          style={{
+            padding: "10px 12px",
+            borderRadius: "8px",
+            border: "1px solid #ccc",
+            minWidth: "280px"
+          }}
+        >
+          <option value="contributions-per-campaign">
+            Contributions par campagne
+          </option>
+          <option value="amount-collected-per-campaign">
+            Montant collecté par campagne
+          </option>
+        </select>
+      </section>
+
+      {selectedChart === "contributions-per-campaign" && (
+        <ContributionsPerCampaignChart data={contributionsPerCampaignData} />
+      )}
+
+      {selectedChart === "amount-collected-per-campaign" && (
+        <AmountCollectedPerCampaignChart
+          data={amountCollectedPerCampaignData}
+        />
+      )}
     </main>
-
   );
-
 }

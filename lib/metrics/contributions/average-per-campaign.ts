@@ -1,5 +1,9 @@
 type Contribution = {
+  id: string;
   campaignId: string;
+  amount: number;
+  contributorId?: string;
+  date?: string;
 };
 
 type Campaign = {
