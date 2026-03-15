@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 export default function DashboardPage() {
   const [activeCampaigns, setActiveCampaigns] = useState<number | null>(null);
   const [totalContributions, setTotalContributions] = useState<number | null>(null);
+  const [totalAmount, setTotalAmount] = useState<number | null>(null);
 
   useEffect(() => {
     async function loadMetrics() {
@@ -19,6 +20,11 @@ export default function DashboardPage() {
         const contributionsResponse = await fetch("/api/metrics/contributions-total");
         const contributionsData = await contributionsResponse.json();
         setTotalContributions(contributionsData.value);
+
+        // montant collecté
+        const amountResponse = await fetch("/api/metrics/amount-collected");
+        const amountData = await amountResponse.json();
+        setTotalAmount(amountData.value);
 
       } catch (error) {
         console.error("Erreur chargement métriques", error);
@@ -65,6 +71,22 @@ export default function DashboardPage() {
 
           <p style={{ fontSize: "32px", fontWeight: "bold" }}>
             {totalContributions !== null ? totalContributions : "Chargement..."}
+          </p>
+        </div>
+
+        {/* Montant collecté */}
+        <div
+          style={{
+            padding: "20px",
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+            width: "250px",
+          }}
+        >
+          <h3>Montant collecté</h3>
+
+          <p style={{ fontSize: "32px", fontWeight: "bold" }}>
+            {totalAmount !== null ? `${totalAmount} €` : "Chargement..."}
           </p>
         </div>
 
