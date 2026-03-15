@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import MetricCard from "@/components/dashboard/MetricCard";
 
 export default function DashboardPage() {
   const [activeCampaigns, setActiveCampaigns] = useState<number | null>(null);
@@ -11,17 +12,14 @@ export default function DashboardPage() {
     async function loadMetrics() {
       try {
 
-        // campagnes actives
         const campaignsResponse = await fetch("/api/metrics/campaigns-active");
         const campaignsData = await campaignsResponse.json();
         setActiveCampaigns(campaignsData.value);
 
-        // contributions totales
         const contributionsResponse = await fetch("/api/metrics/contributions-total");
         const contributionsData = await contributionsResponse.json();
         setTotalContributions(contributionsData.value);
 
-        // montant collecté
         const amountResponse = await fetch("/api/metrics/amount-collected");
         const amountData = await amountResponse.json();
         setTotalAmount(amountData.value);
@@ -41,55 +39,14 @@ export default function DashboardPage() {
       <h2>Indicateurs</h2>
 
       <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
+        <MetricCard title="Campagnes actives" value={activeCampaigns} />
 
-        {/* Campagnes actives */}
-        <div
-          style={{
-            padding: "20px",
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            width: "250px",
-          }}
-        >
-          <h3>Campagnes actives</h3>
+        <MetricCard title="Contributions totales" value={totalContributions} />
 
-          <p style={{ fontSize: "32px", fontWeight: "bold" }}>
-            {activeCampaigns !== null ? activeCampaigns : "Chargement..."}
-          </p>
-        </div>
-
-        {/* Contributions totales */}
-        <div
-          style={{
-            padding: "20px",
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            width: "250px",
-          }}
-        >
-          <h3>Contributions totales</h3>
-
-          <p style={{ fontSize: "32px", fontWeight: "bold" }}>
-            {totalContributions !== null ? totalContributions : "Chargement..."}
-          </p>
-        </div>
-
-        {/* Montant collecté */}
-        <div
-          style={{
-            padding: "20px",
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            width: "250px",
-          }}
-        >
-          <h3>Montant collecté</h3>
-
-          <p style={{ fontSize: "32px", fontWeight: "bold" }}>
-            {totalAmount !== null ? `${totalAmount} €` : "Chargement..."}
-          </p>
-        </div>
-
+        <MetricCard
+          title="Montant collecté"
+          value={totalAmount !== null ? `${totalAmount} €` : null}
+        />
       </div>
     </main>
   );
