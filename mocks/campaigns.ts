@@ -17,7 +17,7 @@ export const mockCampaigns = [
     objectifFinancier: 22000,
     dateFin: "2026-11-20T23:59:59Z",
     porteurId: "u2v3w4x5-y6z7-a8b9-c0d1-e2f3g4h5i6j7",
-    status: "active"
+    status: "failed"
   },
   {
     id: "c3d4e5f6-g7h8-i9j0-k1l2-m3n4o5p6q7r8",
@@ -27,7 +27,7 @@ export const mockCampaigns = [
     objectifFinancier: 10000,
     dateFin: "2026-12-05T23:59:59Z",
     porteurId: "u3v4w5x6-y7z8-a9b0-c1d2-e3f4g5h6i7j8",
-    status: "brouillon"
+    status: "success"
   },
   {
     id: "c4e5f6g7-h8i9-j0k1-l2m3-n4o5p6q7r8s9",
@@ -37,6 +37,6 @@ export const mockCampaigns = [
     objectifFinancier: 18000,
     dateFin: "2026-09-30T23:59:59Z",
     porteurId: "u4v5w6x7-y8z9-a0b1-c2d3-e4f5g6h7i8j9",
-    status: "refusee"
+    status: "success"
   }
 ];

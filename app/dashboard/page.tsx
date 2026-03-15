@@ -7,6 +7,8 @@ export default function DashboardPage() {
   const [activeCampaigns, setActiveCampaigns] = useState<number | null>(null);
   const [totalContributions, setTotalContributions] = useState<number | null>(null);
   const [totalAmount, setTotalAmount] = useState<number | null>(null);
+  const [successRate, setSuccessRate] = useState<number | null>(null);
+  const [averageContribution, setAverageContribution] = useState<number | null>(null);
 
   useEffect(() => {
     async function loadMetrics() {
@@ -24,6 +26,14 @@ export default function DashboardPage() {
         const amountData = await amountResponse.json();
         setTotalAmount(amountData.value);
 
+        const successResponse = await fetch("/api/metrics/success-rate");
+        const successData = await successResponse.json();
+        setSuccessRate(successData.value);
+
+        const averageResponse = await fetch("/api/metrics/average-contribution");
+        const averageData = await averageResponse.json();
+        setAverageContribution(averageData.value);
+
       } catch (error) {
         console.error("Erreur chargement métriques", error);
       }
@@ -38,7 +48,7 @@ export default function DashboardPage() {
 
       <h2>Indicateurs</h2>
 
-      <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
+      <div style={{ display: "flex", gap: "20px", marginTop: "20px", flexWrap: "wrap" }}>
         <MetricCard title="Campagnes actives" value={activeCampaigns} />
 
         <MetricCard title="Contributions totales" value={totalContributions} />
@@ -46,6 +56,16 @@ export default function DashboardPage() {
         <MetricCard
           title="Montant collecté"
           value={totalAmount !== null ? `${totalAmount} €` : null}
+        />
+
+        <MetricCard
+          title="Taux de succès"
+          value={successRate !== null ? `${successRate} %` : null}
+        />
+
+        <MetricCard
+          title="Contribution moyenne"
+          value={averageContribution !== null ? `${averageContribution} €` : null}
         />
       </div>
     </main>
