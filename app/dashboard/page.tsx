@@ -4,19 +4,28 @@ import { useEffect, useState } from "react";
 
 export default function DashboardPage() {
   const [activeCampaigns, setActiveCampaigns] = useState<number | null>(null);
+  const [totalContributions, setTotalContributions] = useState<number | null>(null);
 
   useEffect(() => {
-    async function loadMetric() {
+    async function loadMetrics() {
       try {
-        const response = await fetch("/api/metrics/campaigns-active");
-        const data = await response.json();
-        setActiveCampaigns(data.value);
+
+        // campagnes actives
+        const campaignsResponse = await fetch("/api/metrics/campaigns-active");
+        const campaignsData = await campaignsResponse.json();
+        setActiveCampaigns(campaignsData.value);
+
+        // contributions totales
+        const contributionsResponse = await fetch("/api/metrics/contributions-total");
+        const contributionsData = await contributionsResponse.json();
+        setTotalContributions(contributionsData.value);
+
       } catch (error) {
-        console.error("Erreur chargement métrique", error);
+        console.error("Erreur chargement métriques", error);
       }
     }
 
-    loadMetric();
+    loadMetrics();
   }, []);
 
   return (
@@ -25,20 +34,40 @@ export default function DashboardPage() {
 
       <h2>Indicateurs</h2>
 
-      <div
-        style={{
-          marginTop: "20px",
-          padding: "20px",
-          border: "1px solid #ddd",
-          borderRadius: "8px",
-          width: "250px",
-        }}
-      >
-        <h3>Campagnes actives</h3>
+      <div style={{ display: "flex", gap: "20px", marginTop: "20px" }}>
 
-        <p style={{ fontSize: "32px", fontWeight: "bold" }}>
-          {activeCampaigns !== null ? activeCampaigns : "Chargement..."}
-        </p>
+        {/* Campagnes actives */}
+        <div
+          style={{
+            padding: "20px",
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+            width: "250px",
+          }}
+        >
+          <h3>Campagnes actives</h3>
+
+          <p style={{ fontSize: "32px", fontWeight: "bold" }}>
+            {activeCampaigns !== null ? activeCampaigns : "Chargement..."}
+          </p>
+        </div>
+
+        {/* Contributions totales */}
+        <div
+          style={{
+            padding: "20px",
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+            width: "250px",
+          }}
+        >
+          <h3>Contributions totales</h3>
+
+          <p style={{ fontSize: "32px", fontWeight: "bold" }}>
+            {totalContributions !== null ? totalContributions : "Chargement..."}
+          </p>
+        </div>
+
       </div>
     </main>
   );
