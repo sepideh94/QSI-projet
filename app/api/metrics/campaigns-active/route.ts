@@ -11,10 +11,15 @@ export async function GET() {
       metric: "campaigns-active",
       value
     });
-  } catch {
+
+  } catch (error) {
+
+    console.error("Erreur récupération campagnes actives", error);
+
     return NextResponse.json(
       { error: "Impossible de récupérer les campagnes actives" },
       { status: 500 }
     );
+
   }
 }
