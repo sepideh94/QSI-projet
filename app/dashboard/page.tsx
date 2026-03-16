@@ -4,8 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import MetricCard from "@/components/dashboard/MetricCard";
 import ContributionsPerCampaignChart from "@/components/charts/ContributionsPerCampaignChart";
 import AmountCollectedPerCampaignChart from "@/components/charts/AmountCollectedPerCampaignChart";
+import TargetAchievementRatePerCampaignChart from "@/components/charts/TargetAchievementRatePerCampaignChart";
 import { getContributionsPerCampaign } from "@/lib/metrics/contributions/contributions-per-campaign";
 import { getAmountCollectedPerCampaign } from "@/lib/charts/amount-collected-per-campaign";
+import { getTargetAchievementRatePerCampaign } from "@/lib/charts/target-achievement-rate-per-campaign";
 
 type MetricsState = {
   activeCampaigns: number | null;
@@ -21,7 +23,8 @@ type MetricResponse = {
 
 type ChartOption =
   | "contributions-per-campaign"
-  | "amount-collected-per-campaign";
+  | "amount-collected-per-campaign"
+  | "target-achievement-rate-per-campaign";
 
 const metricEndpoints = [
   {
@@ -75,6 +78,11 @@ export default function DashboardPage() {
 
   const amountCollectedPerCampaignData = useMemo(
     () => getAmountCollectedPerCampaign(),
+    []
+  );
+
+  const targetAchievementRatePerCampaignData = useMemo(
+    () => getTargetAchievementRatePerCampaign(),
     []
   );
 
@@ -172,6 +180,9 @@ export default function DashboardPage() {
           <option value="amount-collected-per-campaign">
             Montant collecté par campagne
           </option>
+          <option value="target-achievement-rate-per-campaign">
+            Taux d’atteinte par campagne
+          </option>
         </select>
       </section>
 
@@ -182,6 +193,12 @@ export default function DashboardPage() {
       {selectedChart === "amount-collected-per-campaign" && (
         <AmountCollectedPerCampaignChart
           data={amountCollectedPerCampaignData}
+        />
+      )}
+
+      {selectedChart === "target-achievement-rate-per-campaign" && (
+        <TargetAchievementRatePerCampaignChart
+          data={targetAchievementRatePerCampaignData}
         />
       )}
     </main>
