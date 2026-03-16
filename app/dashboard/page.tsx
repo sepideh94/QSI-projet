@@ -2,12 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import MetricCard from "@/components/dashboard/MetricCard";
+import PeriodFilter from "@/components/dashboard/PeriodFilter";
 import ContributionsPerCampaignChart from "@/components/charts/ContributionsPerCampaignChart";
 import AmountCollectedPerCampaignChart from "@/components/charts/AmountCollectedPerCampaignChart";
 import TargetAchievementRatePerCampaignChart from "@/components/charts/TargetAchievementRatePerCampaignChart";
-import { getContributionsPerCampaign } from "@/lib/metrics/contributions/contributions-per-campaign";
-import { getAmountCollectedPerCampaign } from "@/lib/charts/amount-collected-per-campaign";
-import { getTargetAchievementRatePerCampaign } from "@/lib/charts/target-achievement-rate-per-campaign";
+import CampaignStatusDistributionChart from "@/components/charts/CampaignStatusDistributionChart";
+import { getFilteredContributionsPerCampaign } from "@/lib/charts/filtered-contributions-per-campaign";
+import { getFilteredAmountCollectedPerCampaign } from "@/lib/charts/filtered-amount-collected-per-campaign";
+import { getFilteredTargetAchievementRatePerCampaign } from "@/lib/charts/filtered-target-achievement-rate-per-campaign";
+import { getCampaignStatusDistribution } from "@/lib/charts/campaign-status-distribution";
+import { PeriodFilter as PeriodFilterValue } from "@/lib/charts/period-utils";
 
 type MetricsState = {
   activeCampaigns: number | null;
@@ -71,18 +75,26 @@ export default function DashboardPage() {
   const [selectedChart, setSelectedChart] =
     useState<ChartOption>("contributions-per-campaign");
 
+  const [selectedPeriod, setSelectedPeriod] =
+    useState<PeriodFilterValue>("all");
+
   const contributionsPerCampaignData = useMemo(
-    () => getContributionsPerCampaign(),
-    []
+    () => getFilteredContributionsPerCampaign(selectedPeriod),
+    [selectedPeriod]
   );
 
   const amountCollectedPerCampaignData = useMemo(
-    () => getAmountCollectedPerCampaign(),
-    []
+    () => getFilteredAmountCollectedPerCampaign(selectedPeriod),
+    [selectedPeriod]
   );
 
   const targetAchievementRatePerCampaignData = useMemo(
-    () => getTargetAchievementRatePerCampaign(),
+    () => getFilteredTargetAchievementRatePerCampaign(selectedPeriod),
+    [selectedPeriod]
+  );
+
+  const campaignStatusDistributionData = useMemo(
+    () => getCampaignStatusDistribution(),
     []
   );
 
@@ -149,58 +161,91 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <section style={{ marginTop: "40px", maxWidth: "700px" }}>
-        <label
-          htmlFor="chart-selector"
-          style={{
-            display: "block",
-            marginBottom: "8px",
-            fontWeight: "bold"
-          }}
-        >
-          Sélectionner un indicateur
-        </label>
+      <section
+        style={{
+          marginTop: "40px",
+          display: "flex",
+          gap: "16px",
+          flexWrap: "wrap",
+          alignItems: "end"
+        }}
+      >
+        <div>
+          <label
+            htmlFor="chart-selector"
+            style={{
+              display: "block",
+              marginBottom: "8px",
+              fontWeight: "bold"
+            }}
+          >
+            Sélectionner un indicateur
+          </label>
 
-        <select
-          id="chart-selector"
-          value={selectedChart}
-          onChange={(event) =>
-            setSelectedChart(event.target.value as ChartOption)
-          }
-          style={{
-            padding: "10px 12px",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            minWidth: "280px"
-          }}
-        >
-          <option value="contributions-per-campaign">
-            Contributions par campagne
-          </option>
-          <option value="amount-collected-per-campaign">
-            Montant collecté par campagne
-          </option>
-          <option value="target-achievement-rate-per-campaign">
-            Taux d’atteinte par campagne
-          </option>
-        </select>
+          <select
+            id="chart-selector"
+            value={selectedChart}
+            onChange={(event) =>
+              setSelectedChart(event.target.value as ChartOption)
+            }
+            style={{
+              padding: "10px 12px",
+              borderRadius: "8px",
+              border: "1px solid #ccc",
+              minWidth: "280px"
+            }}
+          >
+            <option value="contributions-per-campaign">
+              Contributions par campagne
+            </option>
+            <option value="amount-collected-per-campaign">
+              Montant collecté par campagne
+            </option>
+            <option value="target-achievement-rate-per-campaign">
+              Taux d’atteinte par campagne
+            </option>
+          </select>
+        </div>
+
+        <PeriodFilter
+          value={selectedPeriod}
+          onChange={setSelectedPeriod}
+        />
       </section>
 
-      {selectedChart === "contributions-per-campaign" && (
-        <ContributionsPerCampaignChart data={contributionsPerCampaignData} />
-      )}
+      <section
+        style={{
+          marginTop: "24px",
+          display: "grid",
+          gridTemplateColumns: "65% 35%",
+          columnGap: "8px",
+          alignItems: "start"
+        }}
+      >
+        <div style={{ minWidth: 0 }}>
+          {selectedChart === "contributions-per-campaign" && (
+            <ContributionsPerCampaignChart data={contributionsPerCampaignData} />
+          )}
 
-      {selectedChart === "amount-collected-per-campaign" && (
-        <AmountCollectedPerCampaignChart
-          data={amountCollectedPerCampaignData}
-        />
-      )}
+          {selectedChart === "amount-collected-per-campaign" && (
+            <AmountCollectedPerCampaignChart
+              data={amountCollectedPerCampaignData}
+            />
+          )}
 
-      {selectedChart === "target-achievement-rate-per-campaign" && (
-        <TargetAchievementRatePerCampaignChart
-          data={targetAchievementRatePerCampaignData}
-        />
-      )}
+          {selectedChart === "target-achievement-rate-per-campaign" && (
+            <TargetAchievementRatePerCampaignChart
+              data={targetAchievementRatePerCampaignData}
+            />
+          )}
+        </div>
+
+        <div style={{ minWidth: 0, marginLeft: "-40px" }}>
+          <CampaignStatusDistributionChart
+            data={campaignStatusDistributionData}
+          />
+        </div>
+      </section>
     </main>
   );
 }
