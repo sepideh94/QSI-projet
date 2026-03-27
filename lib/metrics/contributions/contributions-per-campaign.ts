@@ -1,11 +1,14 @@
-import { mockCampaigns } from "@/mocks/campaigns";
-import { mockContributions } from "@/mocks/contributions";
+import {
+  getCampaigns,
+  getContributions
+} from "@/lib/database/in-memory-database";
 
 export function getContributionsPerCampaign() {
+  const campaigns = getCampaigns();
+  const contributions = getContributions();
 
-  return mockCampaigns.map((campaign) => {
-
-    const count = mockContributions.filter(
+  return campaigns.map((campaign) => {
+    const count = contributions.filter(
       (c) => c.campaignId === campaign.id
     ).length;
 
@@ -15,5 +18,4 @@ export function getContributionsPerCampaign() {
     };
 
   });
-
 }

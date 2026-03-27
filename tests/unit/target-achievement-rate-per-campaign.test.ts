@@ -1,4 +1,4 @@
-import { getTargetAchievementRatePerCampaign } from "@/lib/charts/target-achievement-rate-per-campaign";
+import { getTargetAchievementRatePerCampaign } from "@/lib/charts/use-cases/get-target-achievement-rate-per-campaign";
 
 describe("getTargetAchievementRatePerCampaign", () => {
   it("should return the target achievement rate for each campaign", () => {

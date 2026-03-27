@@ -1,4 +1,4 @@
-import { getCampaignStatusDistribution } from "@/lib/charts/campaign-status-distribution";
+import { getCampaignStatusDistribution } from "@/lib/charts/use-cases/get-campaign-status-distribution";
 
 describe("getCampaignStatusDistribution", () => {
   it("should return the number of campaigns by status", () => {

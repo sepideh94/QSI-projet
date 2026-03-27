@@ -1,4 +1,4 @@
-import { mockCampaigns } from "@/mocks/campaigns";
+import { getCampaigns } from "@/lib/database/in-memory-database";
 
 type CampaignStatusDistributionItem = {
   label: string;
@@ -24,10 +24,12 @@ const orderedStatuses = [
 ];
 
 export function getCampaignStatusDistribution(): CampaignStatusDistributionItem[] {
+  const campaigns = getCampaigns();
+
   return orderedStatuses
     .map((status) => ({
       label: statusLabels[status],
-      value: mockCampaigns.filter((campaign) => campaign.status === status).length
+      value: campaigns.filter((campaign) => campaign.status === status).length
     }))
     .filter((item) => item.value > 0);
 }

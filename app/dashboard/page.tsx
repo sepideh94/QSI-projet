@@ -7,11 +7,11 @@ import ContributionsPerCampaignChart from "@/components/charts/ContributionsPerC
 import AmountCollectedPerCampaignChart from "@/components/charts/AmountCollectedPerCampaignChart";
 import TargetAchievementRatePerCampaignChart from "@/components/charts/TargetAchievementRatePerCampaignChart";
 import CampaignStatusDistributionChart from "@/components/charts/CampaignStatusDistributionChart";
-import { getFilteredContributionsPerCampaign } from "@/lib/charts/filtered-contributions-per-campaign";
-import { getFilteredAmountCollectedPerCampaign } from "@/lib/charts/filtered-amount-collected-per-campaign";
-import { getFilteredTargetAchievementRatePerCampaign } from "@/lib/charts/filtered-target-achievement-rate-per-campaign";
-import { getCampaignStatusDistribution } from "@/lib/charts/campaign-status-distribution";
-import { PeriodFilter as PeriodFilterValue } from "@/lib/charts/period-utils";
+import { getFilteredContributionsPerCampaign } from "@/lib/charts/use-cases/get-contributions-per-campaign";
+import { getFilteredAmountCollectedPerCampaign } from "@/lib/charts/use-cases/get-amount-collected-per-campaign";
+import { getFilteredTargetAchievementRatePerCampaign } from "@/lib/charts/use-cases/get-target-achievement-rate-per-campaign";
+import { getCampaignStatusDistribution } from "@/lib/charts/use-cases/get-campaign-status-distribution";
+import { type PeriodFilter as PeriodFilterValue } from "@/lib/charts/use-cases/period-filter";
 
 type MetricsState = {
   activeCampaigns: number | null;
@@ -21,43 +21,34 @@ type MetricsState = {
   averageContribution: number | null;
 };
 
-type MetricResponse = {
-  value: number;
-};
-
 type ChartOption =
   | "contributions-per-campaign"
   | "amount-collected-per-campaign"
   | "target-achievement-rate-per-campaign";
 
-const metricEndpoints = [
+const metricCards = [
   {
     key: "activeCampaigns" as const,
-    url: "/api/metrics/campaigns-active",
     title: "Campagnes actives",
     format: (value: number) => value
   },
   {
     key: "totalContributions" as const,
-    url: "/api/metrics/contributions-total",
     title: "Contributions totales",
     format: (value: number) => value
   },
   {
     key: "totalAmount" as const,
-    url: "/api/metrics/amount-collected",
     title: "Montant collecté",
     format: (value: number) => `${value} €`
   },
   {
     key: "successRate" as const,
-    url: "/api/metrics/success-rate",
     title: "Taux de succès",
     format: (value: number) => `${value} %`
   },
   {
     key: "averageContribution" as const,
-    url: "/api/metrics/average-contribution",
     title: "Contribution moyenne",
     format: (value: number) => value
   }
@@ -101,28 +92,19 @@ export default function DashboardPage() {
   useEffect(() => {
     async function loadMetrics() {
       try {
-        const results = await Promise.all(
-          metricEndpoints.map(async ({ key, url }) => {
-            const response = await fetch(url);
+        const response = await fetch("/api/metrics");
 
-            if (!response.ok) {
-              throw new Error(`Erreur HTTP ${response.status} sur ${url}`);
-            }
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP ${response.status} sur /api/metrics`);
+        }
 
-            const data: MetricResponse = await response.json();
-
-            return { key, value: data.value };
-          })
-        );
-
-        setMetrics((currentMetrics) => {
-          const nextMetrics = { ...currentMetrics };
-
-          for (const result of results) {
-            nextMetrics[result.key] = result.value;
-          }
-
-          return nextMetrics;
+        const payload = await response.json();
+        setMetrics({
+          activeCampaigns: payload.metrics["campaigns-active"],
+          totalContributions: payload.metrics["contributions-total"],
+          totalAmount: payload.metrics["amount-collected"],
+          successRate: payload.metrics["success-rate"],
+          averageContribution: payload.metrics["average-contribution"]
         });
       } catch (error) {
         console.error("Erreur chargement métriques", error);
@@ -152,7 +134,7 @@ export default function DashboardPage() {
           flexWrap: "wrap"
         }}
       >
-        {metricEndpoints.map(({ key, title, format }) => (
+        {metricCards.map(({ key, title, format }) => (
           <MetricCard
             key={key}
             title={title}

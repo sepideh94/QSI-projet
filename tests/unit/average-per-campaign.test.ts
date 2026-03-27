@@ -1,19 +1,24 @@
 import { getAverageContributionsPerCampaign } from "@/lib/metrics/contributions/average-per-campaign";
-import { mockCampaigns } from "@/mocks/campaigns";
-import { mockContributions } from "@/mocks/contributions";
+import {
+  getCampaigns,
+  getContributions
+} from "@/lib/database/in-memory-database";
 
 describe("getAverageContributionsPerCampaign", () => {
+  const campaigns = getCampaigns();
+  const contributions = getContributions();
+
   it("should return the rounded average number of contributions per campaign", () => {
     const result = getAverageContributionsPerCampaign(
-      mockContributions,
-      mockCampaigns
+      contributions,
+      campaigns
     );
 
     expect(result).toBe(3);
   });
 
   it("should return 0 when there are no campaigns", () => {
-    const result = getAverageContributionsPerCampaign(mockContributions, []);
+    const result = getAverageContributionsPerCampaign(contributions, []);
 
     expect(result).toBe(0);
   });
@@ -21,7 +26,7 @@ describe("getAverageContributionsPerCampaign", () => {
   it("should ignore contributions linked to unknown campaigns", () => {
     const result = getAverageContributionsPerCampaign(
       [
-        ...mockContributions,
+        ...contributions,
         {
           id: "extra-1",
           campaignId: "unknown-campaign",
@@ -30,7 +35,7 @@ describe("getAverageContributionsPerCampaign", () => {
           date: "2026-01-10"
         }
       ],
-      mockCampaigns
+      campaigns
     );
 
     expect(result).toBe(3);

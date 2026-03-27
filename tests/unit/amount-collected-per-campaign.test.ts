@@ -1,4 +1,4 @@
-import { getAmountCollectedPerCampaign } from "@/lib/charts/amount-collected-per-campaign";
+import { getAmountCollectedPerCampaign } from "@/lib/charts/use-cases/get-amount-collected-per-campaign";
 
 describe("getAmountCollectedPerCampaign", () => {
   it("should return the collected amount for each campaign", () => {

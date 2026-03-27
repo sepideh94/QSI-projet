@@ -1,6 +1,6 @@
 "use client";
 
-import { PeriodFilter as PeriodFilterValue } from "@/lib/charts/period-utils";
+import { type PeriodFilter as PeriodFilterValue } from "@/lib/charts/use-cases/period-filter";
 
 type Props = {
   value: PeriodFilterValue;

@@ -1,24 +1,27 @@
-import { mockCampaigns } from "@/mocks/campaigns";
-import { mockContributions } from "@/mocks/contributions";
+import {
+  getCampaigns,
+  getContributions
+} from "@/lib/database/in-memory-database";
 import {
   filterContributionsByPeriod,
-  PeriodFilter
-} from "@/lib/charts/period-utils";
+  type PeriodFilter
+} from "@/lib/charts/use-cases/period-filter";
 
-type FilteredContributionsPerCampaignItem = {
+type ContributionsPerCampaignItem = {
   campaignTitle: string;
   contributions: number;
 };
 
 export function getFilteredContributionsPerCampaign(
   period: PeriodFilter
-): FilteredContributionsPerCampaignItem[] {
+): ContributionsPerCampaignItem[] {
+  const campaigns = getCampaigns();
   const filteredContributions = filterContributionsByPeriod(
-    mockContributions,
+    getContributions(),
     period
   );
 
-  return mockCampaigns.map((campaign) => ({
+  return campaigns.map((campaign) => ({
     campaignTitle: campaign.titre,
     contributions: filteredContributions.filter(
       (contribution) => contribution.campaignId === campaign.id

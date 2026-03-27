@@ -40,7 +40,6 @@ export function filterContributionsByPeriod<T extends ContributionWithDate>(
 
   return contributions.filter((contribution) => {
     const contributionDate = new Date(contribution.date);
-
     return contributionDate >= startDate && contributionDate <= referenceDate;
   });
 }

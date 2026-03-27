@@ -1,5 +1,5 @@
-import { mockCampaigns } from "@/mocks/campaigns";
+import { getCampaigns } from "@/lib/database/in-memory-database";
 
 export async function fetchCampaigns() {
-  return mockCampaigns;
+  return getCampaigns();
 }
