@@ -22,7 +22,8 @@ export default function PeriodFilter({ value, onChange }: Props) {
         style={{
           display: "block",
           marginBottom: "8px",
-          fontWeight: "bold"
+          fontWeight: 600,
+          color: "#1e3a8a"
         }}
       >
         Période
@@ -34,8 +35,9 @@ export default function PeriodFilter({ value, onChange }: Props) {
         onChange={(event) => onChange(event.target.value as PeriodFilterValue)}
         style={{
           padding: "10px 12px",
-          borderRadius: "8px",
-          border: "1px solid #ccc",
+          borderRadius: "10px",
+          border: "1px solid #bfdbfe",
+          background: "#ffffff",
           minWidth: "220px"
         }}
       >

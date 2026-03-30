@@ -16,7 +16,7 @@ type Props = {
   }[];
 };
 
-const colors = ["#2563eb", "#16a34a", "#dc2626", "#f59e0b", "#7c3aed", "#6b7280"];
+const colors = ["#2563eb", "#0ea5e9", "#22c55e", "#f59e0b", "#a855f7", "#64748b"];
 
 export default function CampaignStatusDistributionChart({ data }: Props) {
   return (
@@ -24,13 +24,15 @@ export default function CampaignStatusDistributionChart({ data }: Props) {
       style={{
         width: "100%",
         minHeight: "430px",
-        border: "1px solid #ddd",
-        borderRadius: "8px",
+        border: "1px solid #dbeafe",
+        borderRadius: "12px",
+        background: "linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)",
+        boxShadow: "0 10px 24px rgba(30, 64, 175, 0.08)",
         padding: "20px",
-        marginTop: "40px"
+        marginTop: "20px"
       }}
     >
-      <h3 style={{ marginBottom: "10px" }}>
+      <h3 style={{ margin: 0, marginBottom: "10px", color: "#1e3a8a" }}>
         Répartition des campagnes par statut
       </h3>
 
